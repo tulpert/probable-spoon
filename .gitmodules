@@ -1,8 +1,0 @@
-[submodule "prod"]
-	path = submodules/lacking-rainbow-prod/prod
-	url = git@github.com:tulpert/lacking-rainbow.git
-	branch = prod
-[submodule "dev"]
-	path = submodules/lacking-rainbow-dev/dev
-	url = git@github.com:tulpert/lacking-rainbow.git
-	branch = dev

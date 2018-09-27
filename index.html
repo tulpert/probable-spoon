@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+
+<canvas id="myCanvas" width="1200" height="1200" style="border:1px solid #c3c3c3;background-color: black">
+Your browser does not support the canvas element.
+</canvas>
+
+<script>
+    // Colours
+    var fontcolour      = '#666666';
+    var bgcolour        = '#000000';
+    var supergreen      = '#00dd00';    // All OK. 100% up
+    var green           = '#008800';    // Still OK. Example: Above 90%
+    var greenyellow     = '#adff02';    // Adequate. Example: Above 80%
+    var gold            = '#ffd700';    // Warning sign. Keep an eye on this. 
+    var yellow          = '#ffff00';    // Real warning. You should investigate. 
+    var orange          = '#ffa500';    // Getting serious, borderline alert. 
+    var maroon          = '#800000';    // Alert territory. 
+    var red             = '#ff0000';    // Red Alert. Somebody, do something!!! 
+    var nan             = '#999999';    // Service has not responded. 
+
+    var OKlevel         = 90;
+
+    // Declaring the canvas, to get size automatically later
+    var c               = document.getElementById("myCanvas");
+    var ctx             = c.getContext("2d");
+    ctx.font            = "30px Georgia";
+    ctx.textAlign       = 'center';
+
+    var maxarc          = 180; // Only use 180 degrees
+    var startpoint      = (Math.PI);
+    var imageurl        = 'https://www.yr.no/place/Norway/Oslo/Oslo/Oslo/meteogram.png';
+    
+    var services        = randomServices(); 
+    var totalNoServices = services.length;
+    
+    var middleX         = ctx.canvas.clientWidth/2;
+    var middleY         = ctx.canvas.clientHeight/2;
+    var radius          = ctx.canvas.clientHeight/2; // getDrawSize(services.length);
+    var linewidth       = 2;
+    
+    var endpoint        = startpoint;   // Important that the endpoint is initialized as the startpoint
+    var initpoint       = startpoint;   // Keep this for later use. This variable should not be overwritten by code
+    
+    var piecesize       = 0;            // Initializing variable
+    var colour          = '#800080'     // Initializing variable as purple. Just for fun
+
+    var serviceValues = new Array();
+        
+    for (j = 0; j < services.length; j++) {
+        serviceValues.push(randomValues(8));
+    }
+
+    let urlParams = new URLSearchParams(window.location.search);
+    let myParam = urlParams.get('showok');
+    var _services = new Array();
+    var _serviceValues = new Array();
+    for (j = 0; j < services.length; j++) {
+        foundNonGreen = false;
+        for (i = 0; i < serviceValues[j].length; i++) {
+            if ( Number(serviceValues[j][i]) < OKlevel ) {
+                foundNonGreen = true;
+            }
+        }
+        if ( foundNonGreen ) {
+            _services.push(services[j]);
+            _serviceValues.push(serviceValues[j]);
+        }
+    }
+    var failedNoServices = _services.length;
+    if ( myParam ) {
+        // Keep all the services and show everything
+    } else {
+        services        = _services;
+        serviceValues   = _serviceValues;
+    }
+
+    for (j = 0; j < services.length; j++) {
+        startpoint  = endpoint; 
+        endpoint    = startpoint + ((Math.PI*2/360)*(maxarc/services.length));
+        values      = serviceValues[j];   
+
+        // Add an empty piece at the end (the middle of the circle) to create the illusion of space
+        values.push('f');
+        // Paint a piece of the pie
+        for (var i=0; i < values.length; i++) {
+            piecesize   = radius-(radius/values.length)*i
+            
+            colour = getAlertColour(values[i]);
+            if (i == values.length-1) {
+                colour = bgcolour;
+            }
+            // Code to create the pie piece
+            ctx.beginPath();
+            ctx.fillStyle = colour;
+            ctx.arc(middleX,middleY,piecesize,startpoint,endpoint, false);
+            ctx.lineTo(middleX,middleY)
+            ctx.fill();
+        }
+    }
+    // Code to create the white spacers
+    // This will create the center ball
+    ctx.beginPath();
+    ctx.fillStyle   = bgcolour;
+    ctx.arc(middleX, middleY, piecesize, 0, Math.PI*2);
+    ctx.fill();
+    // And this will create the spacers
+    startpoint = endpoint = initpoint;
+    for (var j=0; j < services.length; j++) {
+        startpoint  = endpoint; 
+        endpoint    = startpoint + ((Math.PI*2/360)*(maxarc/services.length));
+        for (var i=0; i < values.length; i++) {
+            piecesize   = radius-(radius/values.length)*i;
+            ctx.beginPath();
+            ctx.strokeStyle = bgcolour; 
+            ctx.lineWidth = linewidth;
+            ctx.arc(middleX,middleY,piecesize,startpoint,endpoint, false);
+            ctx.lineTo(middleX,middleY)
+            ctx.stroke();
+        }
+    }
+
+    if ( services.length > 0 ) {
+        ctx.fillStyle       = fontcolour;
+        ctx.fillText (failedNoServices + " / "+totalNoServices, middleX, middleY);
+    } else {
+        var img 		= new Image();
+        var imgprops    = (img.width/img.height);
+        img.src         = imageurl; 
+        img.onload      = function() {
+        	ctx.drawImage(img, 0, (ctx.canvas.clientHeight/2 - img.height/2), (ctx.canvas.clientWidth), (ctx.canvas.clientWidth * (img.height/img.width)));
+        };
+        ctx.fillStyle   = fontcolour;
+        ctx.fillText ("All Services ["+totalNoServices+"] are OK. Here's some weather:", middleX, 40);
+    }
+    function randomValues(n=4) {
+        _array = new Array();
+        for (var i=0; i < n; i++) {
+            var _r = Math.floor((Math.random() * 120) + 5);
+            // For more realistic random scenario, only accept randomness a few percent of the time
+            if ( Math.floor((Math.random() * 100) + 1)  > 1  ) {
+                _r = 100;
+            }
+            _array.push(_r);
+        }
+        return _array;
+    }
+
+    function randomServices(n=(Math.floor(Math.random() * 200) + 5)) {
+        _array = new Array();
+        for (var i=0; i < n; i++) {
+            _array.push('Stuff'+n);
+        }
+        return _array;
+    }
+    function getAlertColour(_i) {
+        _n = Number(_i);
+        switch (true) {  // (Number(values[i])) {
+            case (_n > 100):
+                colour = bgcolour;
+                break;
+            case (_n == 100):
+                colour = supergreen;
+                break;
+            case (_n >= 95):
+                colour = green;
+                break;
+            case (_n >= 90):
+                colour = greenyellow;
+                break;
+            case (_n >= 80):
+                colour = gold;
+                break;
+            case (_n >= 75):
+                colour = yellow;
+                break;
+            case (_n >= 70):
+                colour = orange;
+                break;
+            case (_n >= 50):
+                colour = maroon;
+                break;
+            case (_n >= 0):
+                colour = red;
+                break;
+            default:
+                colour = nan;
+        }
+        return colour;
+    } 
+</script>
+
+</body>
+</html>
+
+

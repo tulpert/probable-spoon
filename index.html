@@ -11,11 +11,12 @@ Your browser does not support the canvas element.
 
 <script>
     // Colours
+    var configfile      = 'services.json';
     var fontcolour      = '#666666';
     var bgcolour        = '#000000';
     var supergreen      = '#00dd00';    // All OK. 100% up
-    var green           = '#008800';    // Still OK. Example: Above 90%
-    var greenyellow     = '#adff02';    // Adequate. Example: Above 80%
+    var green           = '#008800';    // Still OK. Example: Above 90% (Set values in the code)
+    var greenyellow     = '#adff02';    // Adequate. Example: Above 80% (Set values in the code)
     var gold            = '#ffd700';    // Warning sign. Keep an eye on this. 
     var yellow          = '#ffff00';    // Real warning. You should investigate. 
     var orange          = '#ffa500';    // Getting serious, borderline alert. 
@@ -23,24 +24,23 @@ Your browser does not support the canvas element.
     var red             = '#ff0000';    // Red Alert. Somebody, do something!!! 
     var nan             = '#999999';    // Service has not responded. 
 
-    var OKlevel         = 90;
+    var OKlevel         = 90;           // The level to toggle the "showok" flag
+    var maxarc          = 180;          // Only use 180 degrees. Can be up to 360. But if set higher, you loose the details underneath.
 
     // Declaring the canvas, to get size automatically later
     var c               = document.getElementById("myCanvas");
     var ctx             = c.getContext("2d");
-    ctx.font            = "30px Georgia";
-    ctx.textAlign       = 'center';
 
-    var maxarc          = 180; // Only use 180 degrees
     var startpoint      = (Math.PI);
-    var imageurl        = 'https://www.yr.no/place/Norway/Oslo/Oslo/Oslo/meteogram.png';
+    var imageurl        = 'https://www.yr.no/place/Norway/Oslo/Oslo/Oslo/meteogram.png';    // Image to display when all is well
     
     var services        = randomServices(); 
     var totalNoServices = services.length;
+    var maxnovalues     = 0;            // A counter to store the largest value number
     
     var middleX         = ctx.canvas.clientWidth/2;
     var middleY         = ctx.canvas.clientHeight/2;
-    var radius          = ctx.canvas.clientHeight/2; // getDrawSize(services.length);
+    var radius          = (ctx.canvas.clientHeight/2)-(ctx.canvas.clientHeight/2*20/100); // getDrawSize(services.length);
     var linewidth       = 2;
     
     var endpoint        = startpoint;   // Important that the endpoint is initialized as the startpoint
@@ -48,6 +48,16 @@ Your browser does not support the canvas element.
     
     var piecesize       = 0;            // Initializing variable
     var colour          = '#800080'     // Initializing variable as purple. Just for fun
+
+    var legendfontsize  = Math.floor(radius/20);    // An approximate good fontsize
+    var largefontsize   = Math.floor(radius/15);    // An approximate good fontsize
+    var fontname        = 'Georgia';
+    var legendfont      = legendfontsize+"px "+fontname;
+    var largefont       = largefontsize+"px "+fontname;
+
+    jsoncontent         = readTextFile(configfile);
+    // alert(jsoncontent.services[0].name);
+
 
     var serviceValues = new Array();
         
@@ -83,6 +93,9 @@ Your browser does not support the canvas element.
         startpoint  = endpoint; 
         endpoint    = startpoint + ((Math.PI*2/360)*(maxarc/services.length));
         values      = serviceValues[j];   
+        if (values.length > maxnovalues) {
+            maxnovalues = values.length;
+        }
 
         // Add an empty piece at the end (the middle of the circle) to create the illusion of space
         values.push('f');
@@ -102,6 +115,20 @@ Your browser does not support the canvas element.
             ctx.fill();
         }
     }
+    // Code to create the legend
+    ctx.fillStyle   = fontcolour;
+    for (var i = 0; i < maxnovalues; i++) {
+        ctx.font            = legendfont;
+        ctx.textAlign       = 'left';
+        filltext = "Not Defined"
+        for (var k = 0; k < maxnovalues; k++) {
+            if (jsoncontent.values[k] && jsoncontent.values[k].id == i) {
+                filltext = jsoncontent.values[k].name
+            }
+        }
+        ctx.fillText("* " + filltext, legendfontsize, (legendfontsize*maxnovalues)-(legendfontsize*i));
+    }
+
     // Code to create the white spacers
     // This will create the center ball
     ctx.beginPath();
@@ -126,6 +153,8 @@ Your browser does not support the canvas element.
 
     if ( services.length > 0 ) {
         ctx.fillStyle       = fontcolour;
+        ctx.font            = largefont;
+        ctx.textAlign       = 'center';
         ctx.fillText (failedNoServices + " / "+totalNoServices, middleX, middleY);
     } else {
         var img 		= new Image();
@@ -192,6 +221,23 @@ Your browser does not support the canvas element.
         }
         return colour;
     } 
+function readTextFile(file) {
+    var req = new XMLHttpRequest();
+    var allText;
+    var jsonResponse;
+    req.overrideMimeType("application/json");
+    req.open("GET", file, false);
+    req.onreadystatechange = function () {
+        if(req.readyState === 4) {
+            if(req.status === 200 || req.status == 0) {
+ // iii               allText = req.responseText;
+                      jsonResponse = JSON.parse(req.responseText);
+            }
+        }
+    }
+    req.send(null);
+    return jsonResponse;
+}
 </script>
 
 </body>

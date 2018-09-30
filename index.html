@@ -117,7 +117,7 @@ Your browser does not support the canvas element.
     }
     // Code to create the legend
     ctx.fillStyle   = fontcolour;
-    for (var i = 0; i < maxnovalues; i++) {
+    for (var i = 1; i <= maxnovalues; i++) {
         ctx.font            = legendfont;
         ctx.textAlign       = 'left';
         filltext = "Not Defined"
@@ -126,7 +126,7 @@ Your browser does not support the canvas element.
                 filltext = jsoncontent.values[k].name
             }
         }
-        ctx.fillText("* " + filltext, legendfontsize, (legendfontsize*maxnovalues)-(legendfontsize*i));
+        ctx.fillText("* " + filltext, legendfontsize, legendfontsize+(legendfontsize*maxnovalues)-(legendfontsize*i));
     }
 
     // Code to create the white spacers

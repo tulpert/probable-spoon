@@ -5,16 +5,28 @@
             "id": 1
         },
         {
-            "name": "Application",
+            "name": "Infrastructure",
             "id": 2
         },
         {
-            "name": "Dependencies",
+            "name": "Database",
             "id": 3
         },
         {
-            "name": "Internet",
+            "name": "Service Component",
             "id": 4
+        },
+        {
+            "name": "Application",
+            "id": 5
+        },
+        {
+            "name": "Dependencies",
+            "id": 6
+        },
+        {
+            "name": "Internet",
+            "id": 7
         }
     ],
     "services": [
@@ -28,7 +40,7 @@
             "name": "vega",
             "network": "98",
             "application": 81,
-            "internet": "100"
+            "internet": "40"
         }
     ]
 }

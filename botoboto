@@ -1,0 +1,53 @@
+#!/usr/bin/python
+import boto3
+
+ec2     = boto3.client('ec2', region_name='eu-west-2')
+# images  = boto3.client('', region_name='eu-west-2')
+filters = [
+        {
+            'Name': 'string',
+            'Values': [
+                'string',
+            ]
+        },
+    ]
+ins     = ec2.describe_instances()
+print (len(imgs))
+
+print ("----- START -----")
+_instances      = dict()
+_instanceIDs    = dict()
+
+# Get the list of ImageIDs used in the provisioned instances
+for instances in ins['Reservations']:
+    for instance in instances['Instances']:
+        if not instance['ImageId'] in _instanceIDs:
+            _instanceIDs[str(instance['ImageId'])] = dict()
+            # _instanceIDs.append(instance['ImageId'])
+
+# Run through the list of ImageIDs and get some metadata, like when they were published
+# print (" ".join(_instanceIDs.keys()))
+print (_imageIDs)
+# imgs    = ec2.describe_images(ImageIds=['ami-924aa8f5', 'aki-8b6369ef'])
+# for iid in _instanceIDs.keys():
+    # print (str(iid))
+
+
+for instances in ins['Reservations']:
+    for instance in instances['Instances']:
+        instanceid  = instance['InstanceId']
+        status      = instance['State']['Name']
+        imageid     = instance['ImageId']
+        name        = 'N/A'
+        for t in instance['Tags']: 
+            if t['Key'] == 'Name':
+                name    = t['Value']
+        _instances[str(instanceid)] = instance
+        _instances[str(instanceid)]['_Status'] = str(status)
+        _instances[str(instanceid)]['_Name'] = str(name)
+        _str = "InstanceId: " + str(instanceid) + ' ' + "Status: " + str(status) + ' ' + "Name: " + str(name) + ' ' + "ImageId: " + str(imageid)
+        _str = str(instanceid) + ' ' + str(status) + ' ' + str(imageid) + ' ' + str(name)
+        print (_str)
+print (" ----- MID -----")
+print (" ----- END -----")
+

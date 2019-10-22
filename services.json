@@ -1,46 +1,25 @@
 {
-    "values": [
-        {
-            "name": "Network",
-            "id": 1
-        },
-        {
-            "name": "Infrastructure",
-            "id": 2
-        },
-        {
-            "name": "Database",
-            "id": 3
-        },
-        {
-            "name": "Service Component",
-            "id": 4
-        },
-        {
-            "name": "Application",
-            "id": 5
-        },
-        {
-            "name": "Dependencies",
-            "id": 6
-        },
-        {
-            "name": "Internet",
-            "id": 7
-        }
-    ],
-    "services": [
-        {
-            "name": "deneb",
-            "network": 100,
-            "application": 90,
-            "dependencies": 100
-        },
-        {
-            "name": "vega",
-            "network": "98",
-            "application": 81,
-            "internet": "40"
-        }
-    ]
+    "gauge": {
+        "NY Users Blue": {
+                "value": 30,
+                "units": "Users"
+            },
+        "SHA Users Blue": {
+                "value": 20,
+                "units": "Users"
+            },
+        "OSL Users Blue": {
+                "value": 10,
+                "units": "Users"
+            },
+        "NY Users Green": {
+                "value": 3
+            },
+        "SHA Users Green": {
+                "value": 9
+            },
+        "OSL Users Green": {
+                "value": 77
+            }
+    }
 }
